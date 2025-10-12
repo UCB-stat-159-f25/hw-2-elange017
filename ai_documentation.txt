@@ -171,3 +171,58 @@ python -m ipykernel install --user --name=ligo --display-name "Python (ligo)"
 Open your notebook and select that kernel.
 
 Run all cells — everything should execute cleanly. 
+
+Prompt: in the scipy documentation, etc. to find where the blackman and tukey functions have been moved to, and to replace the signal.blackman(...) and signal.tukey(...)
+
+The problem
+
+Older code might have:
+
+from scipy import signal
+
+w = signal.blackman(1024)
+t = signal.tukey(1024)
+
+
+But in recent versions of SciPy, blackman and tukey are not in scipy.signal anymore. That’s why you need to update the imports.
+
+2️⃣ Where they are now
+
+Both functions are in scipy.signal.windows.
+
+So you can do either:
+
+from scipy.signal import windows
+
+w = windows.blackman(1024)
+t = windows.tukey(1024)
+
+
+Or, import individually:
+
+from scipy.signal.windows import blackman, tukey
+
+w = blackman(1024)
+t = tukey(1024)
+
+
+✅ Both approaches work; the second one is cleaner if you’re only using these functions.
+
+3️⃣ Updating the notebook
+
+Search your notebook for:
+
+signal.blackman
+signal.tukey
+
+
+Replace them with either:
+
+windows.blackman
+windows.tukey
+
+
+or, if you imported them directly:
+
+blackman(...)
+tukey(...)
