@@ -1,0 +1,228 @@
+Prompt: how do i navigate t othe folder where i downloaded the repo? Should I download it outside of just adding the file to my own repo in github?
+Response (Code portion - won't let me copy and paste full description): git clone https://github.com/username/repo-name.git
+cd Documents/GitHub   # or wherever you keep projects
+git clone https://github.com/username/repo-name.git
+cd repo-name
+cd Documents/GitHub/repo-name
+
+Prompt: add a tag to repository
+Response: Make sure you’re inside your repo
+
+Open your terminal and navigate to your repo folder:
+cd path/to/repo-name
+Step 2: Check your current commit
+
+You can see your latest commits with:
+git log --oneline
+Lightweight tag
+
+A simple label (no extra metadata):
+git tag v1.0
+☁️ Step 4: Push the tag to GitHub
+
+By default, git push doesn’t include tags.
+You must push them explicitly:
+git push origin v1.0
+git push origin --tags
+Step 5: Verify it on GitHub
+
+Go to your repo’s page.
+
+Click “Releases” (right sidebar or under “Code”).
+
+You’ll see your tag listed there — optionally, you can create a “release” linked to it with notes or files.
+
+Prompt: The notebook as shipped by LIGO includes a companion script, readligo.py with some data reading utilities. You will move this file from being next to the notebook into a folder called ligotools and change the notebook line that reads import readligo as rl into from ligotools import readligo as rl For this, you will need the ligotools folder to work as a proper Python package.
+
+Response: 🎯 Your goal
+
+You want to:
+
+Move readligo.py into a new folder called ligotools/
+
+Make that folder a Python package
+
+Update the notebook import so it works properly:
+
+from ligotools import readligo as rl
+1. Create the new folder
+
+Inside your repository folder (where the notebook lives), create:
+
+ligotools/
+2. Add an __init__.py file
+
+Inside ligotools/, create an empty file called:
+
+__init__.py
+
+
+That file tells Python:
+
+“This folder is a package, and its contents can be imported.”
+3. Update your import line in the notebook
+
+Open your Jupyter notebook and replace this line:
+
+import readligo as rl
+
+
+with:
+
+from ligotools import readligo as rl
+4. Test that it works
+
+Run the first few notebook cells to make sure the import works.
+If you get an error like ModuleNotFoundError: No module named 'ligotools', it likely means your working directory isn’t set to the repo’s root.
+
+You can check that inside a notebook cell:
+
+import os
+os.getcwd()
+
+
+If it’s not the repo’s main folder, change it:
+
+os.chdir("path/to/repo-name")
+
+Prompt: How do I check the version of Python that the LIGO notebook is using.
+Response: 
+import sys
+print(sys.version) 
+You’ll see something like:
+
+3.9.13 (main, Aug 25 2022, 18:55:36)
+
+
+→ Then you’ll specify python=3.9 (only the major.minor version) in your environment file.
+Prompt: How do I add to this repository an environment.yml file that creates an environment named ligo, and installs the necessary dependencies to properly run this notebook on our hub.
+Create your environment.yml file
+
+Once you know the package versions, make a file called environment.yml in your repo’s root (same level as your notebook).
+You can do this in a text editor, terminal, or JupyterLab’s file browser.
+
+Example (you’ll replace version numbers with what you found):
+
+name: ligo
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.9
+  - numpy=1.20
+  - scipy=1.7
+  - matplotlib=3.4
+  - h5py=3.1
+  - decorator=4.4
+  - ipykernel
+
+
+📝 Notes:
+
+Don’t use the third version digit (e.g., write numpy=1.20, not numpy=1.20.3).
+
+decorator must match the Binder version (e.g., 4.4, not the newer 5.x that breaks old notebooks).
+
+ipykernel lets you run Jupyter notebooks in this environment.
+
+Step 4: Build the environment locally
+
+In your terminal:
+
+mamba env create -f environment.yml
+
+
+(or conda env create -f environment.yml if you don’t have mamba)
+
+Activate it:
+
+conda activate ligo
+
+
+Check versions:
+
+python --version
+conda list | grep numpy
+
+Step 5: Add the environment’s kernel to Jupyter
+
+While in your activated ligo environment, run:
+
+python -m ipykernel install --user --name=ligo --display-name "Python (ligo)"
+
+
+That adds a selectable kernel in Jupyter called Python (ligo).
+
+Now when you open the notebook, you can go to:
+
+Kernel → Change Kernel → Python (ligo)
+Step 6: Test it on the Stat159 DataHub
+
+Upload your updated repo (with environment.yml and the new folder structure).
+
+On the DataHub, open a terminal and run:
+
+mamba env create -f environment.yml
+conda activate ligo
+python -m ipykernel install --user --name=ligo --display-name "Python (ligo)"
+
+
+Open your notebook and select that kernel.
+
+Run all cells — everything should execute cleanly. 
+
+Prompt: in the scipy documentation, etc. to find where the blackman and tukey functions have been moved to, and to replace the signal.blackman(...) and signal.tukey(...)
+
+The problem
+
+Older code might have:
+
+from scipy import signal
+
+w = signal.blackman(1024)
+t = signal.tukey(1024)
+
+
+But in recent versions of SciPy, blackman and tukey are not in scipy.signal anymore. That’s why you need to update the imports.
+
+2️⃣ Where they are now
+
+Both functions are in scipy.signal.windows.
+
+So you can do either:
+
+from scipy.signal import windows
+
+w = windows.blackman(1024)
+t = windows.tukey(1024)
+
+
+Or, import individually:
+
+from scipy.signal.windows import blackman, tukey
+
+w = blackman(1024)
+t = tukey(1024)
+
+
+✅ Both approaches work; the second one is cleaner if you’re only using these functions.
+
+3️⃣ Updating the notebook
+
+Search your notebook for:
+
+signal.blackman
+signal.tukey
+
+
+Replace them with either:
+
+windows.blackman
+windows.tukey
+
+
+or, if you imported them directly:
+
+blackman(...)
+tukey(...)
